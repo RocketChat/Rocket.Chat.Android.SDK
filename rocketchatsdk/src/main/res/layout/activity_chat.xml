@@ -43,11 +43,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        app:attachmentButtonDefaultIconColor="@color/green"
-        app:attachmentButtonDefaultIconPressedColor="@color/green_dark"
         app:inputButtonDefaultBgColor="@color/green"
         app:inputButtonDefaultBgPressedColor="@color/green_dark"
-        app:inputHint="@string/input_message"
-        app:showAttachmentButton="true"/>
+        app:inputHint="@string/input_message" />
 
 </RelativeLayout>
