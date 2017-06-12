@@ -1,8 +1,10 @@
 package com.github.rocketchat.livechat;
 
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,20 +18,23 @@ import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 import com.stfalcon.chatkit.utils.DateFormatter;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import io.rocketchat.common.utils.Utils;
 import io.rocketchat.livechat.LiveChatAPI;
-import io.rocketchat.livechat.callbacks.ConnectCallback;
-import io.rocketchat.livechat.callbacks.GuestCallback;
-import io.rocketchat.livechat.callbacks.HistoryCallback;
-import io.rocketchat.livechat.models.GuestObject;
-import io.rocketchat.livechat.models.MessageObject;
-import io.rocketchat.network.EventThread;
-import io.rocketchat.utils.Utils;
+import io.rocketchat.livechat.callback.AgentCallback;
+import io.rocketchat.livechat.callback.ConnectCallback;
+import io.rocketchat.livechat.callback.GuestCallback;
+import io.rocketchat.livechat.callback.HistoryCallback;
+import io.rocketchat.livechat.callback.MessageCallback;
+import io.rocketchat.livechat.callback.TypingCallback;
+import io.rocketchat.livechat.middleware.LiveChatMiddleware;
+import io.rocketchat.livechat.model.AgentObject;
+import io.rocketchat.livechat.model.GuestObject;
+import io.rocketchat.livechat.model.MessageObject;
 
 public class ChatActivity extends AppCompatActivity implements
         MessagesListAdapter.SelectionListener,
@@ -39,7 +44,10 @@ public class ChatActivity extends AppCompatActivity implements
         DateFormatter.Formatter,
         ConnectCallback,
         GuestCallback,
-        HistoryCallback{
+        HistoryCallback,
+        MessageCallback,
+        TypingCallback,
+        AgentCallback{
 
 
     private String url="ws://192.168.43.149:3000/websocket";
@@ -65,9 +73,12 @@ public class ChatActivity extends AppCompatActivity implements
      */
     protected MessagesListAdapter<Message> messagesAdapter;
 
-    private static String senderId="1234";
     private LiveChatAPI liveChat;
 
+
+
+    Handler Typinghandler=new Handler();
+    Boolean typing=false;
 
     /**
      * This function will be called whenever messages are being selected and deselected
@@ -100,8 +111,7 @@ public class ChatActivity extends AppCompatActivity implements
 
     @Override
     public boolean onSubmit(final CharSequence input) {
-        String shortID=Utils.shortUUID();
-        messagesAdapter.addToStart(new Message(shortID,new User(senderId,"vishal",null,true),input.toString()),true);
+        String shortID= Utils.shortUUID();
         liveChat.sendMessage(shortID,roomID,input.toString(),visitorToken);
         return true;
     }
@@ -146,13 +156,41 @@ public class ChatActivity extends AppCompatActivity implements
         MessageInput input = (MessageInput) findViewById(R.id.input);
         input.setInputListener(this);
         input.setAttachmentsListener(this);
+        input.getInputEditText().addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (!typing){
+                    typing=true;
+                    liveChat.sendIsTyping(roomID,username,true);
+                }
+                Typinghandler.removeCallbacks(onTypingTimeout);
+                Typinghandler.postDelayed(onTypingTimeout,600);
+            }
+
+            Runnable onTypingTimeout=new Runnable() {
+                @Override
+                public void run() {
+                    typing=false;
+                    liveChat.sendIsTyping(roomID,username,false);
+                }
+            };
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
         liveChat=new LiveChatAPI(url);
         liveChat.connectAsync(this);
     }
 
     private void initAdapter() {
-        messagesAdapter = new MessagesListAdapter<>(senderId, null);
+        messagesAdapter = new MessagesListAdapter<>(userID, null);
         messagesAdapter.enableSelectionMode(this);
         messagesAdapter.setLoadMoreListener(this);
         messagesAdapter.setDateHeadersFormatter(this);
@@ -232,21 +270,68 @@ public class ChatActivity extends AppCompatActivity implements
         Log.i ("success","connection is successful");
         liveChat.login(authToken,ChatActivity.this);
     }
+
     @Override
-    public void call(GuestObject object) {
+    public void call(LiveChatMiddleware.CallbackType guestCallbackType, GuestObject object) {
         Log.i ("success","Login is successfull");
+//        liveChat.subscribeLiveChatRoom(roomID,false,null,this);
+        liveChat.subscribeRoom(roomID,false,null,this);
+        liveChat.subscribeTyping(roomID,false,null,this);
+        liveChat.getAgentData(roomID,this);
         liveChat.getChatHistory(roomID,50,new Date(),this);
     }
 
     @Override
     public void call(ArrayList<MessageObject> list, int unreadNotLoaded) {
-        ArrayList <Message> messages=new ArrayList<>();
+        final ArrayList <Message> messages=new ArrayList<>();
         for (MessageObject object : list) {
             if (!object.getMessagetype().equalsIgnoreCase("command")) {
-                messages.add(new Message(object.getMessageId(), new User("5678", "sachin", null, true), object.getMessage(),object.getMsgTimestamp()));
+                messages.add(new Message(object.getMessageId(), new User(object.getSender().getUserId(), object.getSender().getUserName(), null, true), object.getMessage(),object.getMsgTimestamp()));
             }
         }
-        messagesAdapter.addToEnd(messages,false);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                messagesAdapter.addToEnd(messages,false);
+            }
+        });
     }
 
+    @Override
+    public void call(String roomId, final MessageObject object) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                messagesAdapter.addToStart(new Message(object.getMessageId(),new User(object.getSender().getUserId(), object.getSender().getUserName(), null, true), object.getMessage(),object.getMsgTimestamp()),true);
+            }
+        });
+    }
+
+    @Override
+    public void call(String roomId, final String user, final Boolean istyping) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (istyping) {
+                    getSupportActionBar().setSubtitle(user + " is typing...");
+                }else{
+                    getSupportActionBar().setSubtitle("");
+                }
+            }
+        });
+
+    }
+
+    @Override
+    public void call(LiveChatMiddleware.AgentCallbackType agentCallbackType, final AgentObject object) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getSupportActionBar().setTitle(object.getUsername());
+                if (object.getEmails().optJSONObject(0)!=null) {
+                    getSupportActionBar().setSubtitle(object.getEmails().optJSONObject(0).optString("address"));
+                }
+            }
+        });
+    }
 }
