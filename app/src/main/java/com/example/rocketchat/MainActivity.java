@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.github.rocketchat.livechat.ChatActivity;
+import com.github.rocketchat.livechat.SignupActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,7 +23,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent=new Intent(MainActivity.this,ChatActivity.class);
                 startActivity(intent);
-
             }
         });
 

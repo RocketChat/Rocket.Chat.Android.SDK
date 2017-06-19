@@ -6,4 +6,7 @@
     <string name="date_header_today">Today</string>
     <string name="date_header_yesterday">Yesterday</string>
     <string name="input_message">Say something cool</string>
+    <string name="username">Username</string>
+    <string name="emailid">Email</string>
+    <string name="register">Register</string>
 </resources>
