@@ -337,6 +337,7 @@ public class ChatActivity extends AppCompatActivity implements
                 AppUtils.showToast(ChatActivity.this,"Login successful",false);
             }
         });
+
         chatRoom.getAgentData(this);
         chatRoom.getChatHistory(20,lastTimestamp,null,this);
 
@@ -349,6 +350,7 @@ public class ChatActivity extends AppCompatActivity implements
 
     @Override
     public void onAgentConnect(final AgentObject agentObject) {
+        chatRoom.getChatHistory(1,lastTimestamp,null,this);
         processAgent(agentObject);
     }
 
@@ -363,8 +365,6 @@ public class ChatActivity extends AppCompatActivity implements
                 AppUtils.showToast(ChatActivity.this,"Agent connected",true);
             }
         });
-
-
 
         chatRoom.subscribeRoom(null,this);
         chatRoom.subscribeTyping(null,this);
