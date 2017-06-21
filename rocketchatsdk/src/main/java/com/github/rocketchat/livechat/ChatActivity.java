@@ -1,5 +1,6 @@
 package com.github.rocketchat.livechat;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.Ringtone;
@@ -7,6 +8,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -73,8 +75,10 @@ public class ChatActivity extends AppCompatActivity implements
 
     Handler Typinghandler=new Handler();
     Boolean typing=false;
+    Boolean isAgentConnected=false;
     private Ringtone r;
     private Date lastTimestamp;
+    private ProgressDialog dialog;
 
     /**
      * This function will be called whenever messages are being selected and deselected
@@ -109,6 +113,9 @@ public class ChatActivity extends AppCompatActivity implements
     @Override
     public boolean onSubmit(final CharSequence input) {
         chatRoom.sendMessage(input.toString());
+        if (!isAgentConnected){
+            dialog.show();
+        }
         return true;
     }
 
@@ -186,6 +193,10 @@ public class ChatActivity extends AppCompatActivity implements
             }
         });
 
+        dialog=new ProgressDialog(this);
+        dialog.setIndeterminate(true);
+        dialog.setMessage("Contacting agent...");
+
         SharedPreferences sharedPref=getPreferences(MODE_PRIVATE);
         String roomInfo=sharedPref.getString("roomInfo",null);
 
@@ -196,6 +207,8 @@ public class ChatActivity extends AppCompatActivity implements
             liveChatAPI=((LiveChatApplication)getApplicationContext()).getLiveChatAPI();
             liveChatAPI.setReconnectionStrategy(null);
             chatRoom=liveChatAPI.new ChatRoom(roomInfo);
+            dialog.setMessage("Connecting ...");
+            dialog.show();
             liveChatAPI.connect(this);
             initAdapter();
         }
@@ -300,6 +313,7 @@ public class ChatActivity extends AppCompatActivity implements
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                dialog.setMessage("Logging in ...");
                 AppUtils.showToast(ChatActivity.this,"Connected to server",false);
             }
         });
@@ -334,13 +348,13 @@ public class ChatActivity extends AppCompatActivity implements
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                dialog.setMessage("Loading history ...");
                 AppUtils.showToast(ChatActivity.this,"Login successful",false);
             }
         });
 
         chatRoom.getAgentData(this);
         chatRoom.getChatHistory(20,lastTimestamp,null,this);
-
     }
 
     @Override
@@ -355,6 +369,7 @@ public class ChatActivity extends AppCompatActivity implements
     }
 
     public void processAgent(final AgentObject agentObject){
+        isAgentConnected=true;
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -362,7 +377,11 @@ public class ChatActivity extends AppCompatActivity implements
                 if (agentObject.getEmails().optJSONObject(0)!=null) {
                     getSupportActionBar().setSubtitle(agentObject.getEmails().optJSONObject(0).optString("address"));
                 }
+                if (dialog.isShowing()){
+                    dialog.dismiss();
+                }
                 AppUtils.showToast(ChatActivity.this,"Agent connected",true);
+
             }
         });
 
@@ -383,6 +402,9 @@ public class ChatActivity extends AppCompatActivity implements
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (dialog.isShowing()){
+                    dialog.dismiss();
+                }
                 messagesAdapter.addToEnd(messages,false);
             }
         });

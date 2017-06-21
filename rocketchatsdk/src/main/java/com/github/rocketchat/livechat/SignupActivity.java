@@ -1,5 +1,6 @@
 package com.github.rocketchat.livechat;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +22,7 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
     EditText username,email;
     LiveChatAPI api;
     Boolean isconnected=false;
+    ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +34,11 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
         username= (EditText) findViewById(R.id.userid);
         email= (EditText) findViewById(R.id.email);
         Button register= (Button) findViewById(R.id.register);
+
+        dialog=new ProgressDialog(this);
+        dialog.setIndeterminate(true);
+        dialog.setMessage("Registering ...");
+
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -42,6 +49,7 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
                     AppUtils.showToast(SignupActivity.this,"username and email shouldn't be null",true);
                 }else{
                     if (isconnected){
+                        dialog.show();
                         api.registerGuest(username,email,null,SignupActivity.this);
 
                     }else{
@@ -93,6 +101,7 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
             @Override
             public void run() {
                 AppUtils.showToast(SignupActivity.this,"Registration successful",false);
+                dialog.dismiss();
             }
         });
         System.out.println("Registration success");
