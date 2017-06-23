@@ -8,7 +8,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.Snackbar;
+import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -143,6 +143,7 @@ public class ChatActivity extends AppCompatActivity implements
             return DateFormatter.format(date, DateFormatter.Template.STRING_DAY_MONTH_YEAR);
         }
     }
+
     private MessagesList messagesList;
 
     @Override
@@ -213,6 +214,7 @@ public class ChatActivity extends AppCompatActivity implements
             initAdapter();
         }
     }
+
 
     private void initAdapter() {
         messagesAdapter = new MessagesListAdapter<>(chatRoom.getUserId(), null);
@@ -305,6 +307,7 @@ public class ChatActivity extends AppCompatActivity implements
             }
         };
     }
+
 
 
     @Override
