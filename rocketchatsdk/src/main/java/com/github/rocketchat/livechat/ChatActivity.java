@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.UiThread;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -17,6 +18,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.github.rocketchat.R;
 import com.github.rocketchat.livechat.Application.LiveChatApplication;
@@ -271,6 +273,7 @@ public class ChatActivity extends AppCompatActivity implements
             editor.commit();
 
             liveChatAPI = ((LiveChatApplication) getApplicationContext()).getLiveChatAPI();
+            liveChatAPI.setConnectListener(this);
             chatRoom = liveChatAPI.new ChatRoom(roonInfo);
             chatRoom.subscribeLiveChatRoom(null, this);
             initAdapter();
@@ -322,9 +325,11 @@ public class ChatActivity extends AppCompatActivity implements
     /**
      * On back pressed, if messages are selected, unselect them or go back
      */
+
     @Override
     public void onBackPressed() {
         if (selectionCount == 0) {
+            liveChatAPI.disconnect();
             super.onBackPressed();
         } else {
             messagesAdapter.unselectAllItems();
@@ -361,7 +366,10 @@ public class ChatActivity extends AppCompatActivity implements
             @Override
             public void run() {
                 dialog.setMessage("Logging in ...");
-                AppUtils.showToast(ChatActivity.this,"Connected to server",false);
+//                AppUtils.showToast(ChatActivity.this,"Connected to server",false);
+                Snackbar
+                        .make(findViewById(R.id.chat_activity), R.string.connected, Snackbar.LENGTH_LONG)
+                        .show();
             }
         });
         chatRoom.login(this);
@@ -373,7 +381,20 @@ public class ChatActivity extends AppCompatActivity implements
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                AppUtils.showToast(ChatActivity.this,"Disconnected from server",false);
+                if (dialog.isShowing()){
+                    dialog.dismiss();
+                }
+//                AppUtils.showToast(ChatActivity.this,"Disconnected from server",false);
+                AppUtils.getSnackbar(findViewById(R.id.chat_activity),R.string.disconnected_from_server)
+                        .setAction("RETRY", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialog.setMessage("Connecting ...");
+                                dialog.show();
+                                liveChatAPI.reconnect();
+                            }
+                        })
+                        .show();
             }
         });
     }
@@ -384,7 +405,20 @@ public class ChatActivity extends AppCompatActivity implements
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                AppUtils.showToast(ChatActivity.this,"Connection error",false);
+//                AppUtils.showToast(ChatActivity.this,"Connection error",false);
+                if (dialog.isShowing()){
+                    dialog.dismiss();
+                }
+                AppUtils.getSnackbar(findViewById(R.id.chat_activity),R.string.connection_error)
+                        .setAction("RETRY", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialog.setMessage("Connecting ...");
+                                dialog.show();
+                                liveChatAPI.reconnect();
+                            }
+                        })
+                        .show();
             }
         });
     }
@@ -533,4 +567,6 @@ public class ChatActivity extends AppCompatActivity implements
             startActivity(intent);
         }
     }
+
+
 }

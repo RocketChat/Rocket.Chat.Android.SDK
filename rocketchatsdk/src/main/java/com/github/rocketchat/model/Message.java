@@ -5,7 +5,7 @@ import com.stfalcon.chatkit.commons.models.IMessage;
 import java.util.Date;
 
 /*
- * Created by troy379 on 04.04.17.
+ * Created by sachin76 on 04.04.17.
  */
 
 public class Message implements IMessage{

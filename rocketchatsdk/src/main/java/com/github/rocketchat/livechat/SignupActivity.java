@@ -2,7 +2,9 @@ package com.github.rocketchat.livechat;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -26,6 +28,7 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
     LiveChatAPI api;
     Boolean isconnected=false;
     ProgressDialog dialog;
+    private SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +38,7 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
         api=((LiveChatApplication)getApplicationContext()).getLiveChatAPI();
         api.setReconnectionStrategy(null);
         api.connect(this);
+
         username= (EditText) findViewById(R.id.userid);
         email= (EditText) findViewById(R.id.email);
         Button register= (Button) findViewById(R.id.register);
@@ -42,6 +46,17 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
         dialog=new ProgressDialog(this);
         dialog.setIndeterminate(true);
         dialog.setMessage("Registering ...");
+
+        SharedPreferences sharedPref=getPreferences(MODE_PRIVATE);
+        editor = sharedPref.edit();
+
+        String Username=sharedPref.getString("username",null);
+        String Email=sharedPref.getString("email",null);
+
+        if (Username!=null){
+            username.setText(Username);
+            email.setText(Email);
+        }
 
         register.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,13 +81,18 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
 
     }
 
+
+
     @Override
     public void onConnect(String sessionID) {
         isconnected=true;
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                AppUtils.showToast(SignupActivity.this,"Connected to server",true);
+//                AppUtils.showToast(SignupActivity.this,"Connected to server",true);
+                Snackbar
+                        .make(findViewById(R.id.activity_signup), R.string.connected, Snackbar.LENGTH_LONG)
+                        .show();
             }
         });
     }
@@ -83,7 +103,15 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                AppUtils.showToast(SignupActivity.this,"Disconnected from server",true);
+//                AppUtils.showToast(SignupActivity.this,"Disconnected from server",true);
+                AppUtils.getSnackbar(findViewById(R.id.activity_signup),R.string.disconnected_from_server)
+                        .setAction("RETRY", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                api.reconnect();
+                            }
+                        })
+                        .show();
             }
         });
     }
@@ -94,7 +122,16 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                AppUtils.showToast(SignupActivity.this,"Connection error",true);
+//                AppUtils.showToast(SignupActivity.this,"Connection error",true);
+                AppUtils.getSnackbar(findViewById(R.id.activity_signup),R.string.connection_error)
+                        .setAction("RETRY", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                api.reconnect();
+
+                            }
+                        })
+                        .show();
             }
         });
     }
@@ -115,6 +152,10 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
     @Override
     public void onLogin(GuestObject object) {
         System.out.println("login success");
+        editor.putString("username",username.getText().toString());
+        editor.putString("email",email.getText().toString());
+        editor.commit();
+
         LiveChatAPI.ChatRoom room=api.createRoom(object.getUserID(),object.getToken());
         Intent intent=new Intent();
         intent.putExtra("roomInfo",room.toString());

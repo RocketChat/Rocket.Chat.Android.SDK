@@ -11,4 +11,8 @@
     <string name="register">Register</string>
     <string name="close_conversation">Close conversation</string>
     <string name="contact_via_mail">Contact via mail</string>
+    <string name="no_internet">No internet connection!</string>
+    <string name="disconnected_from_server">Disconnected from server!</string>
+    <string name="connection_error">Connection error!</string>
+    <string name="connected">Connected to server!</string>
 </resources>

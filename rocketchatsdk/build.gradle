@@ -58,7 +58,7 @@ bintray {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.github.stfalcon:chatkit:0.2.1'
-    compile ('io.rocketchat:rocketchatjavasdk:0.3.0'){
+    compile ('io.rocketchat:rocketchatjavasdk:0.3.2'){
         exclude group :'org.json', module: 'json'
     }
 }

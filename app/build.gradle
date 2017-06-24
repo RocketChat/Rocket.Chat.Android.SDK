@@ -23,12 +23,6 @@ android {
     }
 }
 
-repositories {
-    maven {
-        url  "http://dl.bintray.com/rocketchat/RocketChat-SDK"
-    }
-}
-
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
