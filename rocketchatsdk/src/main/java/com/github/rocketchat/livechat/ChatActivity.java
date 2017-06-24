@@ -7,11 +7,9 @@ import android.content.SharedPreferences;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.UiThread;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -224,8 +222,7 @@ public class ChatActivity extends AppCompatActivity implements
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                 // continue with delete
-                        editor.clear();
-                        editor.commit();
+
                         ChatActivity.this.dialog.setMessage("Closing conversation ...");
                         ChatActivity.this.dialog.show();
                         chatRoom.closeConversation();
@@ -313,7 +310,11 @@ public class ChatActivity extends AppCompatActivity implements
         }else if (i==R.id.action_close_conversation){
             builder.show();
         }else if (i==R.id.contact_via_mail){
-            composeEmail(new String[]{agentEmail},"Need support");
+            if (agentEmail!=null) {
+                composeEmail(new String[]{agentEmail}, "Need support");
+            }else {
+                AppUtils.showToast(this,"Agent not connected",false);
+            }
         }
         return true;
     }
@@ -478,6 +479,9 @@ public class ChatActivity extends AppCompatActivity implements
     @Override
     public void onAgentDisconnect(String roomId, MessageObject object) {
         Log.i ("success","agent disconnect");
+        editor.clear();
+        editor.commit();
+
         if (dialog.isShowing()){
             dialog.dismiss();
         }
@@ -485,9 +489,24 @@ public class ChatActivity extends AppCompatActivity implements
             finish();
         }else{
 
-            /**
-             * Show snackbar
-             */
+            builder = new AlertDialog.Builder(this)
+                    .setTitle("Conversation closed by agent")
+                    .setCancelable(false)
+                    .setMessage("Message is \""+object.getMessage()+"\"")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            finish();
+                        }
+                    });
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    builder.show();
+                }
+            });
+
         }
     }
 
@@ -514,6 +533,4 @@ public class ChatActivity extends AppCompatActivity implements
             startActivity(intent);
         }
     }
-
-
 }
