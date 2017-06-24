@@ -17,6 +17,9 @@ import io.rocketchat.livechat.callback.AuthListener;
 import io.rocketchat.livechat.callback.ConnectListener;
 import io.rocketchat.livechat.model.GuestObject;
 
+
+// TODO: 24/6/17 Reconnection to server manually via snackbar
+
 public class SignupActivity extends AppCompatActivity implements ConnectListener, AuthListener.RegisterListener, AuthListener.LoginListener {
 
     EditText username,email;
