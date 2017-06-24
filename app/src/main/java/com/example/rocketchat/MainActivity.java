@@ -1,13 +1,12 @@
 package com.example.rocketchat;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
 import com.github.rocketchat.livechat.ChatActivity;
-import com.github.rocketchat.livechat.SignupActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,6 +24,5 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
     }
 }

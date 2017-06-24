@@ -9,4 +9,6 @@
     <string name="username">Username</string>
     <string name="emailid">Email</string>
     <string name="register">Register</string>
+    <string name="close_conversation">Close conversation</string>
+    <string name="contact_via_mail">Contact via mail</string>
 </resources>

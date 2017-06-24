@@ -28,6 +28,7 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
+        getSupportActionBar().setTitle("LiveChat Registration");
         api=((LiveChatApplication)getApplicationContext()).getLiveChatAPI();
         api.setReconnectionStrategy(null);
         api.connect(this);
@@ -115,6 +116,12 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
         Intent intent=new Intent();
         intent.putExtra("roomInfo",room.toString());
         setResult(RESULT_OK,intent);
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_CANCELED);
         finish();
     }
 }

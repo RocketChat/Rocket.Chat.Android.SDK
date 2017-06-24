@@ -1,14 +1,18 @@
 package com.github.rocketchat.livechat;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.UiThread;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -79,6 +83,12 @@ public class ChatActivity extends AppCompatActivity implements
     private Ringtone r;
     private Date lastTimestamp;
     private ProgressDialog dialog;
+    private AlertDialog.Builder builder;
+
+    private String agentEmail;
+
+
+    private SharedPreferences.Editor editor;
 
     /**
      * This function will be called whenever messages are being selected and deselected
@@ -87,7 +97,7 @@ public class ChatActivity extends AppCompatActivity implements
     @Override
     public void onSelectionChanged(int count) {
         this.selectionCount = count;
-        menu.findItem(R.id.action_delete).setVisible(count > 0);
+//        menu.findItem(R.id.action_delete).setVisible(count > 0);
         menu.findItem(R.id.action_copy).setVisible(count > 0);
 
     }
@@ -150,7 +160,7 @@ public class ChatActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        getSupportActionBar().setTitle("LiveChat");
+        getSupportActionBar().setTitle("LiveChat Room");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
@@ -194,12 +204,40 @@ public class ChatActivity extends AppCompatActivity implements
             }
         });
 
+        /**
+         * setting dialogs for info
+         */
+
         dialog=new ProgressDialog(this);
         dialog.setIndeterminate(true);
+        dialog.setCancelable(false);
         dialog.setMessage("Contacting agent...");
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
+//        } else {
+            builder = new AlertDialog.Builder(this);
+//        }
+//        builder.setTitle("Close conversation")
+          builder.setMessage("Are you sure to close this conversation?")
+                  .setCancelable(false)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                // continue with delete
+                        editor.clear();
+                        editor.commit();
+                        ChatActivity.this.dialog.setMessage("Closing conversation ...");
+                        ChatActivity.this.dialog.show();
+                        chatRoom.closeConversation();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, null);
+
+
 
         SharedPreferences sharedPref=getPreferences(MODE_PRIVATE);
         String roomInfo=sharedPref.getString("roomInfo",null);
+        editor = sharedPref.edit();
 
         if (roomInfo==null){
             Intent intent=new Intent(this,SignupActivity.class);
@@ -230,16 +268,16 @@ public class ChatActivity extends AppCompatActivity implements
         super.onActivityResult(requestCode, resultCode, data);
         if (RESULT_OK!=resultCode){
             finish();
+        }else {
+            String roonInfo = data.getStringExtra("roomInfo");
+            editor.putString("roomInfo", roonInfo);
+            editor.commit();
+
+            liveChatAPI = ((LiveChatApplication) getApplicationContext()).getLiveChatAPI();
+            chatRoom = liveChatAPI.new ChatRoom(roonInfo);
+            chatRoom.subscribeLiveChatRoom(null, this);
+            initAdapter();
         }
-        SharedPreferences sharedPref = getPreferences(MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        String roonInfo=data.getStringExtra("roomInfo");
-        editor.putString("roomInfo",roonInfo);
-        editor.commit();
-        liveChatAPI=((LiveChatApplication)getApplicationContext()).getLiveChatAPI();
-        chatRoom=liveChatAPI.new ChatRoom(roonInfo);
-        chatRoom.subscribeLiveChatRoom(null,this);
-        initAdapter();
     }
 
     /**
@@ -264,13 +302,18 @@ public class ChatActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int i = item.getItemId();
-        if (i == R.id.action_delete) {
-            messagesAdapter.deleteSelectedMessages();
-        } else if (i == R.id.action_copy) {
+//        if (i == R.id.action_delete) {
+//            messagesAdapter.deleteSelectedMessages();
+//        }
+        if (i == R.id.action_copy) {
             messagesAdapter.copySelectedMessagesText(this, getMessageStringFormatter(), true);
             AppUtils.showToast(this, R.string.copied_message, true);
         }else if (i == android.R.id.home) {
             onBackPressed();
+        }else if (i==R.id.action_close_conversation){
+            builder.show();
+        }else if (i==R.id.contact_via_mail){
+            composeEmail(new String[]{agentEmail},"Need support");
         }
         return true;
     }
@@ -369,6 +412,7 @@ public class ChatActivity extends AppCompatActivity implements
     public void onAgentConnect(final AgentObject agentObject) {
         chatRoom.getChatHistory(1,lastTimestamp,null,this);
         processAgent(agentObject);
+
     }
 
     public void processAgent(final AgentObject agentObject){
@@ -378,7 +422,8 @@ public class ChatActivity extends AppCompatActivity implements
             public void run() {
                 getSupportActionBar().setTitle(agentObject.getUsername());
                 if (agentObject.getEmails().optJSONObject(0)!=null) {
-                    getSupportActionBar().setSubtitle(agentObject.getEmails().optJSONObject(0).optString("address"));
+                    agentEmail=agentObject.getEmails().optJSONObject(0).optString("address");
+                    getSupportActionBar().setSubtitle(agentEmail);
                 }
                 if (dialog.isShowing()){
                     dialog.dismiss();
@@ -429,9 +474,21 @@ public class ChatActivity extends AppCompatActivity implements
         });
     }
 
+    @UiThread
     @Override
     public void onAgentDisconnect(String roomId, MessageObject object) {
         Log.i ("success","agent disconnect");
+        if (dialog.isShowing()){
+            dialog.dismiss();
+        }
+        if (object.getSender().getUserId().equals(chatRoom.getUserId())){
+            finish();
+        }else{
+
+            /**
+             * Show snackbar
+             */
+        }
     }
 
     @Override
@@ -442,10 +499,20 @@ public class ChatActivity extends AppCompatActivity implements
                 if (istyping) {
                     getSupportActionBar().setSubtitle(user + " is typing...");
                 }else{
-                    getSupportActionBar().setSubtitle("");
+                    getSupportActionBar().setSubtitle(agentEmail);
                 }
             }
         });
+    }
+
+    public void composeEmail(String[] addresses, String subject) {
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+        intent.putExtra(Intent.EXTRA_EMAIL, addresses);
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
     }
 
 

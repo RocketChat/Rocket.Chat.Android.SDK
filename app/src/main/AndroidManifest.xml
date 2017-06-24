@@ -3,7 +3,7 @@
     package="com.example.rocketchat">
 
     <application
-        android:name="com.github.rocketchat.livechat.Application.LiveChatApplication"
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
