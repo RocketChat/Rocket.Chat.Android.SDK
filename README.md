@@ -79,7 +79,9 @@ support is a button (required view). Clicking on button will fire intent to open
             }
         });
 ```
+<b> Note : </b> This library currently do not support configuration having any departments at server side. Make sure no department is created or available at server side LiveChat configuartion.
 
 <b>For more information refer sample code under 'app' directory. </b>
+
 
 
