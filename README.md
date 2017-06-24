@@ -13,6 +13,11 @@ Feel free to add or edit the features :)
 --->
 This SDK currently provides support to include livechat client functionality in any android app.
 
+
+License
+-------
+MIT License
+
 Gradle
 ------
 ```Gradle
