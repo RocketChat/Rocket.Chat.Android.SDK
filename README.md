@@ -11,7 +11,7 @@ Rocket.Chat.Android.SDK
 - The user interface should have facility to synchronize with app theme, so that it should look as a part of native app
 Feel free to add or edit the features :)
 --->
-This SDK currently provides support to include livechat client functionality in any android app.
+This SDK currently provides support to include <b> livechat client functionality </b> in any android app.
 
 
 License
@@ -34,7 +34,7 @@ How to use
 -------------
 There are two major parts required to be followed
 
-##### 1. Set up Application class
+#### 1. Set up Application class
 - Create Custom Application class that extends LiveChatApplication class in the library. Add name of this custom class in the manifest file. Inside onCreate method call setServerUrl(url) passing url of the server as a parameter.
 
 Example :
@@ -64,7 +64,7 @@ Example :
 ```
 
 
-##### 2. Open ChatActivity
+#### 2. Open ChatActivity
 - Clicking on required view will start new activity by passing ChatActivity as a parameter to the startActivity intent.
 
 Example:<br>
@@ -80,6 +80,6 @@ support is a button (required view). Clicking on button will fire intent to open
         });
 ```
 
-For more information refer to sample code under 'app' directory.
+<b>For more information refer sample code under 'app' directory. </b>
 
 
