@@ -20,7 +20,8 @@ import io.rocketchat.livechat.callback.ConnectListener;
 import io.rocketchat.livechat.model.GuestObject;
 
 
-// TODO: 24/6/17 Reconnection to server manually via snackbar
+// TODO: 24/6/17 History API error handling
+// TODO: 24/6/17 Registration for internal server error handling
 
 public class SignupActivity extends AppCompatActivity implements ConnectListener, AuthListener.RegisterListener, AuthListener.LoginListener {
 
