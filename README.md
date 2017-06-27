@@ -11,6 +11,11 @@ Rocket.Chat.Android.SDK
 - The user interface should have facility to synchronize with app theme, so that it should look as a part of native app
 Feel free to add or edit the features :)
 --->
+
+This SDK is divided into two parts
+1. Core SDK
+2. LiveChat SDK
+
 This SDK currently provides support to include <b> livechat client functionality </b> in any android app.
 
 
@@ -70,7 +75,7 @@ Example :
 Example:<br>
 support is a button (required view). Clicking on button will fire intent to open ChatActivity.
 
-```java
+```
      support.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
