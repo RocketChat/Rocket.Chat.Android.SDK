@@ -14,6 +14,7 @@ import com.github.rocketchat.R;
 import com.github.rocketchat.livechat.Application.LiveChatApplication;
 import com.github.rocketchat.utils.AppUtils;
 
+import io.rocketchat.common.data.model.ErrorObject;
 import io.rocketchat.livechat.LiveChatAPI;
 import io.rocketchat.livechat.callback.AuthListener;
 import io.rocketchat.livechat.callback.ConnectListener;
@@ -138,30 +139,38 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
     }
 
     @Override
-    public void onRegister(GuestObject object) {
+    public void onRegister(GuestObject object, final ErrorObject error) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                AppUtils.showToast(SignupActivity.this,"Registration successful",false);
-                dialog.dismiss();
+                if (error!=null){
+                    AppUtils.showToast(SignupActivity.this, error.getMessage() , false);
+                    dialog.dismiss();
+                }else {
+                    AppUtils.showToast(SignupActivity.this, "Registration successful", false);
+                    dialog.dismiss();
+                }
             }
         });
-        System.out.println("Registration success");
-        api.login(object.getToken(),this);
+        if (error==null) {
+            api.login(object.getToken(), this);
+        }
     }
 
     @Override
-    public void onLogin(GuestObject object) {
-        System.out.println("login success");
-        editor.putString("username",username.getText().toString());
-        editor.putString("email",email.getText().toString());
-        editor.commit();
+    public void onLogin(GuestObject object,ErrorObject error) {
+        if (error==null) {
+            System.out.println("login success");
+            editor.putString("username", username.getText().toString());
+            editor.putString("email", email.getText().toString());
+            editor.commit();
 
-        LiveChatAPI.ChatRoom room=api.createRoom(object.getUserID(),object.getToken());
-        Intent intent=new Intent();
-        intent.putExtra("roomInfo",room.toString());
-        setResult(RESULT_OK,intent);
-        finish();
+            LiveChatAPI.ChatRoom room = api.createRoom(object.getUserID(), object.getToken());
+            Intent intent = new Intent();
+            intent.putExtra("roomInfo", room.toString());
+            setResult(RESULT_OK, intent);
+            finish();
+        }
     }
 
     @Override

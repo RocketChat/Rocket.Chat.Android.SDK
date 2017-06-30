@@ -15,4 +15,5 @@
     <string name="disconnected_from_server">Disconnected from server!</string>
     <string name="connection_error">Connection error!</string>
     <string name="connected">Connected to server!</string>
+    <string name="no_agent_available">No agent assigned!!</string>
 </resources>

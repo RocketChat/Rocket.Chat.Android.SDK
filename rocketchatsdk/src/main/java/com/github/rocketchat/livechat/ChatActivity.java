@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import io.rocketchat.common.data.model.ErrorObject;
 import io.rocketchat.livechat.LiveChatAPI;
 import io.rocketchat.livechat.callback.AgentListener;
 import io.rocketchat.livechat.callback.AuthListener;
@@ -52,7 +53,8 @@ public class ChatActivity extends AppCompatActivity implements
         MessagesListAdapter.OnLoadMoreListener,
         MessageInput.InputListener,
         MessageInput.AttachmentsListener,
-        DateFormatter.Formatter, LoadHistoryListener, AuthListener.LoginListener, ConnectListener, AgentListener.AgentConnectListener, MessageListener, TypingListener, AgentListener.AgentDataListener {
+        MessageListener.MessageAckListener,
+        DateFormatter.Formatter, LoadHistoryListener, AuthListener.LoginListener, ConnectListener, AgentListener.AgentConnectListener, MessageListener.SubscriptionListener, TypingListener, AgentListener.AgentDataListener {
 
 
     public static int REQUEST_REGISTER=0;
@@ -122,7 +124,7 @@ public class ChatActivity extends AppCompatActivity implements
 
     @Override
     public boolean onSubmit(final CharSequence input) {
-        chatRoom.sendMessage(input.toString());
+        chatRoom.sendMessage(input.toString(),this);
         if (!isAgentConnected){
             dialog.show();
         }
@@ -424,7 +426,7 @@ public class ChatActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onLogin(GuestObject object) {
+    public void onLogin(GuestObject object,final ErrorObject error) {
         Log.i ("success","login is successful");
         runOnUiThread(new Runnable() {
             @Override
@@ -435,12 +437,25 @@ public class ChatActivity extends AppCompatActivity implements
         });
 
         chatRoom.getAgentData(this);
-        chatRoom.getChatHistory(20,lastTimestamp,null,this);
     }
 
     @Override
-    public void onAgentData(AgentObject agentObject) {
-        processAgent(agentObject);
+    public void onAgentData(AgentObject agentObject,final ErrorObject error) {
+        if (error!=null){
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
+                    dialog.setMessage("Contacting agent...");
+                    AppUtils.showToast(ChatActivity.this, R.string.no_agent_available , false);
+                }
+            });
+        }else {
+            processAgent(agentObject);
+            chatRoom.getChatHistory(20,lastTimestamp,null,this);
+        }
     }
 
     @Override
@@ -474,23 +489,24 @@ public class ChatActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onLoadHistory(ArrayList<MessageObject> list, int unreadNotLoaded) {
-        lastTimestamp =list.get(list.size()-1).getMsgTimestamp();
-        final ArrayList <Message> messages=new ArrayList<>();
-        for (MessageObject object : list) {
-            if (!object.getMessagetype().equalsIgnoreCase("command")) {
-                messages.add(new Message(object.getMessageId(), new User(object.getSender().getUserId(), object.getSender().getUserName(), null, true), object.getMessage(),object.getMsgTimestamp()));
-            }
-        }
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (dialog.isShowing()){
-                    dialog.dismiss();
+    public void onLoadHistory(ArrayList<MessageObject> list, int unreadNotLoaded,final ErrorObject error) {
+
+            lastTimestamp = list.get(list.size() - 1).getMsgTimestamp();
+            final ArrayList<Message> messages = new ArrayList<>();
+            for (MessageObject object : list) {
+                if (!object.getMessagetype().equalsIgnoreCase("command")) {
+                    messages.add(new Message(object.getMessageId(), new User(object.getSender().getUserId(), object.getSender().getUserName(), null, true), object.getMessage(), object.getMsgTimestamp()));
                 }
-                messagesAdapter.addToEnd(messages,false);
             }
-        });
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
+                    messagesAdapter.addToEnd(messages, false);
+                }
+            });
     }
 
 
@@ -569,4 +585,19 @@ public class ChatActivity extends AppCompatActivity implements
     }
 
 
+    @Override
+    public void onMessageAck(MessageObject object, final ErrorObject error) {
+        Log.i ("success","got error here");
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (dialog.isShowing()){
+                    dialog.dismiss();
+                }
+                if (error!=null){
+                    AppUtils.showToast(ChatActivity.this, error.getMessage() , false);
+                }
+            }
+        });
+    }
 }
