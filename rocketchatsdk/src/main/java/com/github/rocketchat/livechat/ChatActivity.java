@@ -291,6 +291,8 @@ public class ChatActivity extends AppCompatActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         getMenuInflater().inflate(R.menu.chat_actions_menu, menu);
+        menu.findItem(R.id.contact_via_mail).setVisible(false);
+        menu.findItem(R.id.action_close_conversation).setVisible(false);
         onSelectionChanged(0);
         return true;
     }
@@ -452,6 +454,7 @@ public class ChatActivity extends AppCompatActivity implements
                     AppUtils.showToast(ChatActivity.this, R.string.no_agent_available , false);
                 }
             });
+            chatRoom.subscribeLiveChatRoom(null, this);
         }else {
             processAgent(agentObject);
             chatRoom.getChatHistory(20,lastTimestamp,null,this);
@@ -460,9 +463,8 @@ public class ChatActivity extends AppCompatActivity implements
 
     @Override
     public void onAgentConnect(final AgentObject agentObject) {
-        chatRoom.getChatHistory(1,lastTimestamp,null,this);
         processAgent(agentObject);
-
+        chatRoom.getChatHistory(1,lastTimestamp,null,this);
     }
 
     public void processAgent(final AgentObject agentObject){
@@ -470,6 +472,9 @@ public class ChatActivity extends AppCompatActivity implements
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                menu.findItem(R.id.contact_via_mail).setVisible(true);
+                menu.findItem(R.id.action_close_conversation).setVisible(true);
+
                 getSupportActionBar().setTitle(agentObject.getUsername());
                 if (agentObject.getEmails().optJSONObject(0)!=null) {
                     agentEmail=agentObject.getEmails().optJSONObject(0).optString("address");
