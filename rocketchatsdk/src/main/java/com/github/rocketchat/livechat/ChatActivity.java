@@ -227,9 +227,15 @@ public class ChatActivity extends AppCompatActivity implements
                     public void onClick(DialogInterface dialog, int which) {
                 // continue with delete
 
-                        ChatActivity.this.dialog.setMessage("Closing conversation ...");
-                        ChatActivity.this.dialog.show();
-                        chatRoom.closeConversation();
+                        if (isAgentConnected) {
+                            ChatActivity.this.dialog.setMessage("Closing conversation ...");
+                            ChatActivity.this.dialog.show();
+                            chatRoom.closeConversation();
+                        }else{
+                            editor.clear();
+                            editor.commit();
+                            finish();
+                        }
                     }
                 })
                 .setNegativeButton(android.R.string.no, null);
@@ -292,7 +298,7 @@ public class ChatActivity extends AppCompatActivity implements
         this.menu = menu;
         getMenuInflater().inflate(R.menu.chat_actions_menu, menu);
         menu.findItem(R.id.contact_via_mail).setVisible(false);
-        menu.findItem(R.id.action_close_conversation).setVisible(false);
+//        menu.findItem(R.id.action_close_conversation).setVisible(false);
         onSelectionChanged(0);
         return true;
     }
@@ -434,7 +440,7 @@ public class ChatActivity extends AppCompatActivity implements
             @Override
             public void run() {
                 dialog.setMessage("Loading history ...");
-                AppUtils.showToast(ChatActivity.this,"Login successful",false);
+//                AppUtils.showToast(ChatActivity.this,"Login successful",false);
             }
         });
 
@@ -473,7 +479,7 @@ public class ChatActivity extends AppCompatActivity implements
             @Override
             public void run() {
                 menu.findItem(R.id.contact_via_mail).setVisible(true);
-                menu.findItem(R.id.action_close_conversation).setVisible(true);
+//                menu.findItem(R.id.action_close_conversation).setVisible(true);
 
                 getSupportActionBar().setTitle(agentObject.getUsername());
                 if (agentObject.getEmails().optJSONObject(0)!=null) {
@@ -483,7 +489,7 @@ public class ChatActivity extends AppCompatActivity implements
                 if (dialog.isShowing()){
                     dialog.dismiss();
                 }
-                AppUtils.showToast(ChatActivity.this,"Agent connected",true);
+//                AppUtils.showToast(ChatActivity.this,"Agent connected",true);
 
             }
         });

@@ -294,7 +294,9 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
             departments.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                    selectedDeptId=showDepartments.get(i).getId();
+                    Department selectedDept=showDepartments.get(i);
+                    System.out.println(selectedDept.toString());
+                    selectedDeptId=selectedDept.getId();
                 }
 
                 @Override
