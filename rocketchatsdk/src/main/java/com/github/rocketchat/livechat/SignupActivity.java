@@ -27,11 +27,12 @@ import io.rocketchat.livechat.LiveChatAPI;
 import io.rocketchat.livechat.callback.AuthListener;
 import io.rocketchat.livechat.callback.ConnectListener;
 import io.rocketchat.livechat.callback.InitialDataListener;
+import io.rocketchat.livechat.callback.MessageListener;
 import io.rocketchat.livechat.model.GuestObject;
 import io.rocketchat.livechat.model.LiveChatConfigObject;
 
 
-public class SignupActivity extends AppCompatActivity implements ConnectListener, AuthListener.RegisterListener, AuthListener.LoginListener, InitialDataListener {
+public class SignupActivity extends AppCompatActivity implements ConnectListener, AuthListener.RegisterListener, AuthListener.LoginListener, InitialDataListener, MessageListener.OfflineMessageListener {
 
     EditText username,email;
     Button register;
@@ -97,8 +98,9 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
                     if (isconnected){
                         if (isOfflineForm){
                             String message=SignupActivity.this.message.getText().toString();
-                            api.sendOfflineMessage(username,email,message);
-                            showSuccessMessage(chatConfigObject.getOfflineSuccessMessage());
+                            dialog.setMessage("Sending message ...");
+                            dialog.show();
+                            api.sendOfflineMessage(username,email,message,SignupActivity.this);
                         }else {
                             dialog.show();
                             api.registerGuest(username, email, selectedDeptId , SignupActivity.this);
@@ -318,5 +320,22 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
         }else{
             success_message.setText((int) msg);
         }
+    }
+
+    @Override
+    public void onOfflineMesssageSuccess(Boolean success, ErrorObject error) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (dialog.isShowing()){
+                    dialog.dismiss();
+                }
+                if (chatConfigObject.getOfflineSuccessMessage().equals("")){
+                    showSuccessMessage(R.string.successMessage);
+                }else {
+                    showSuccessMessage(chatConfigObject.getOfflineSuccessMessage());
+                }
+            }
+        });
     }
 }
