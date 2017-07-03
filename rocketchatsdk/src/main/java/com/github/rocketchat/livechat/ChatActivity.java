@@ -606,3 +606,10 @@ public class ChatActivity extends AppCompatActivity implements
         });
     }
 }
+
+
+//    create new branch local "feature/offline_form"
+//    git push -u origin feature/offline_form
+//    create pull request with respect to original develop
+//    merge request with no conflicts
+//    sync original develop into forked develop
