@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">RocketChat SDK</string>
-    <string name="domain_name">Domain name</string>
+    <string name="app_name">LiveChat</string>
+    <string name="domain_name">https://www.your_domain_name.com</string>
 </resources>
