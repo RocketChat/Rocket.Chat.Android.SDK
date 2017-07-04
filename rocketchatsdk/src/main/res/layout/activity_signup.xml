@@ -32,6 +32,7 @@
         android:layout_below="@id/userid"
         android:layout_marginTop="20dp"
         android:id="@+id/email"
+        android:inputType="textEmailAddress"
         android:layout_centerHorizontal="true"
         android:layout_height="wrap_content" />
 
