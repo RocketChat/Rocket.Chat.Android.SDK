@@ -246,6 +246,7 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
             LiveChatAPI.ChatRoom room = api.createRoom(object.getUserID(), object.getToken());
             Intent intent = new Intent();
             intent.putExtra("roomInfo", room.toString());
+            intent.putExtra("title",chatConfigObject.getPopupTitle());
             setResult(RESULT_OK, intent);
             finish();
         }

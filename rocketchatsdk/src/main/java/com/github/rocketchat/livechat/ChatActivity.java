@@ -250,6 +250,10 @@ public class ChatActivity extends AppCompatActivity implements
             Intent intent=new Intent(this,SignupActivity.class);
             startActivityForResult(intent,REQUEST_REGISTER);
         }else {
+            String title=sharedPref.getString("title","");
+            if (!title.equals("")) {
+                getSupportActionBar().setTitle(title);
+            }
             liveChatAPI=((LiveChatApplication)getApplicationContext()).getLiveChatAPI();
             liveChatAPI.setReconnectionStrategy(null);
             chatRoom=liveChatAPI.new ChatRoom(roomInfo);
@@ -277,9 +281,12 @@ public class ChatActivity extends AppCompatActivity implements
             finish();
         }else {
             String roonInfo = data.getStringExtra("roomInfo");
+            String title=data.getStringExtra("title");
             editor.putString("roomInfo", roonInfo);
+            editor.putString("title",title);
             editor.commit();
 
+            getSupportActionBar().setTitle(title);
             liveChatAPI = ((LiveChatApplication) getApplicationContext()).getLiveChatAPI();
             liveChatAPI.setConnectListener(this);
             chatRoom = liveChatAPI.new ChatRoom(roonInfo);
