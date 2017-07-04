@@ -9,7 +9,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     tools:context="com.github.rocketchat.livechat.SignupActivity">
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
         android:layout_width="wrap_content"
         android:text="@string/default_message"
         android:textSize="18dp"
@@ -18,34 +18,40 @@
         android:id="@+id/offline_message"
         android:layout_height="wrap_content" />
 
-    <EditText
+    <android.support.v7.widget.AppCompatEditText
         android:layout_marginTop="20dp"
         android:layout_below="@id/offline_message"
         android:layout_width="match_parent"
         android:hint="@string/username"
+        android:textSize="18dp"
         android:id="@+id/userid"
         android:layout_centerHorizontal="true"
         android:layout_height="wrap_content" />
-    <EditText
+
+    <android.support.v7.widget.AppCompatEditText
         android:layout_width="match_parent"
         android:hint="@string/emailid"
         android:layout_below="@id/userid"
         android:layout_marginTop="20dp"
         android:id="@+id/email"
+        android:textSize="18dp"
         android:inputType="textEmailAddress"
         android:layout_centerHorizontal="true"
         android:layout_height="wrap_content" />
 
-    <Spinner
+    <android.support.v7.widget.AppCompatSpinner
         android:layout_marginTop="20dp"
         android:id="@+id/departments"
         android:layout_below="@id/email"
-        android:layout_height="50dp"
-        style="@style/Widget.AppCompat.Spinner.Underlined"
+        android:textSize="18dp"
+        android:spinnerMode="dialog"
+        android:layout_height="wrap_content"
+        android:prompt="@string/department_prompt"
+        style="@android:style/Widget.Holo.Light.Spinner"
         android:visibility="gone"
         android:layout_width="fill_parent" />
 
-    <EditText
+    <android.support.v7.widget.AppCompatEditText
         android:layout_width="match_parent"
         android:hint="@string/type_message"
         android:layout_below="@id/departments"
@@ -56,7 +62,7 @@
         android:layout_centerHorizontal="true"
         android:layout_height="wrap_content" />
 
-    <Button
+    <android.support.v7.widget.AppCompatButton
         android:layout_marginTop="20dp"
         android:layout_below="@id/message"
         android:layout_width="match_parent"
@@ -64,7 +70,7 @@
         android:id="@+id/register"
         android:layout_height="wrap_content" />
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
         android:layout_width="wrap_content"
         android:id="@+id/success_message"
         android:textSize="18dp"
@@ -73,4 +79,5 @@
         android:text="@string/successMessage"
         android:layout_centerInParent="true"
         android:layout_height="wrap_content" />
+
 </RelativeLayout>

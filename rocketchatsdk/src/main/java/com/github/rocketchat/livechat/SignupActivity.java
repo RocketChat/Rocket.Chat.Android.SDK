@@ -7,13 +7,12 @@ import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatButton;
+import android.support.v7.widget.AppCompatEditText;
+import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TextView;
 
 import com.github.rocketchat.R;
 import com.github.rocketchat.livechat.Application.LiveChatApplication;
@@ -30,22 +29,22 @@ import io.rocketchat.livechat.callback.InitialDataListener;
 import io.rocketchat.livechat.callback.MessageListener;
 import io.rocketchat.livechat.model.GuestObject;
 import io.rocketchat.livechat.model.LiveChatConfigObject;
-
+import android.support.v7.widget.AppCompatSpinner;
 
 public class SignupActivity extends AppCompatActivity implements ConnectListener, AuthListener.RegisterListener, AuthListener.LoginListener, InitialDataListener, MessageListener.OfflineMessageListener {
 
-    EditText username,email;
-    Button register;
+    AppCompatEditText username,email;
+    AppCompatButton register;
 
     //Offline form
-    TextView default_message,success_message;
-    EditText message;
+    AppCompatTextView default_message,success_message;
+    AppCompatEditText message;
 
 
     LiveChatAPI api;
     ProgressDialog dialog;
     private SharedPreferences.Editor editor;
-    Spinner departments;
+    AppCompatSpinner departments;
 
     Boolean isconnected=false;
     Boolean isOfflineForm=false;
@@ -62,14 +61,14 @@ public class SignupActivity extends AppCompatActivity implements ConnectListener
         api.setReconnectionStrategy(null);
         api.connect(this);
 
-        username= (EditText) findViewById(R.id.userid);
-        email= (EditText) findViewById(R.id.email);
-        default_message= (TextView) findViewById(R.id.offline_message);
-        message= (EditText) findViewById(R.id.message);
-        success_message= (TextView) findViewById(R.id.success_message);
-        departments= (Spinner) findViewById(R.id.departments);
+        username= (AppCompatEditText) findViewById(R.id.userid);
+        email= (AppCompatEditText) findViewById(R.id.email);
+        default_message= (AppCompatTextView) findViewById(R.id.offline_message);
+        message= (AppCompatEditText) findViewById(R.id.message);
+        success_message= (AppCompatTextView) findViewById(R.id.success_message);
+        departments= (AppCompatSpinner) findViewById(R.id.departments);
 
-        register= (Button) findViewById(R.id.register);
+        register= (AppCompatButton) findViewById(R.id.register);
 
         dialog=new ProgressDialog(this);
         dialog.setIndeterminate(true);

@@ -6,7 +6,7 @@
     <string name="date_header_today">Today</string>
     <string name="date_header_yesterday">Yesterday</string>
     <string name="input_message">Say something cool</string>
-    <string name="username">Username</string>
+    <string name="username">Name</string>
     <string name="type_name">Type your name</string>
     <string name="type_email">Type your email</string>
     <string name="type_message">Type your message</string>
@@ -22,5 +22,6 @@
     <string name="disconnected_from_server">Disconnected from server!</string>
     <string name="connection_error">Connection error!</string>
     <string name="connected">Connected to server!</string>
+    <string name="department_prompt">Choose department</string>
     <string name="no_agent_available">No agent assigned!!</string>
 </resources>
