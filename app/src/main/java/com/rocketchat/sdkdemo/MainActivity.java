@@ -1,4 +1,4 @@
-package com.example.rocketchat;
+package com.rocketchat.sdkdemo;
 
 import android.content.Intent;
 import android.os.Bundle;

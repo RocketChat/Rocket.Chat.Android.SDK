@@ -1,4 +1,4 @@
-package com.example.rocketchat;
+package com.rocketchat.sdkdemo;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

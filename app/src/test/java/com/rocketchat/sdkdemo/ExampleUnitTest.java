@@ -1,4 +1,4 @@
-package com.example.rocketchat;
+package com.rocketchat.sdkdemo;
 
 import org.junit.Test;
 
