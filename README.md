@@ -16,8 +16,8 @@ This SDK is divided into two parts
 1. Core SDK
 2. LiveChat SDK
 
-This SDK currently provides support to include <b> livechat client functionality </b> in any android app.
-
+This SDK currently provides support to include <b> livechat client functionality </b> in any android app. </br>
+**Core SDK** coming soon.....
 
 License
 -------
@@ -29,7 +29,7 @@ Add below snippet in build.gradle file.
 
 ```Gradle
 dependencies {
-    compile 'com.github.rocketchat:rocketchatsdk:0.1.1'
+    compile 'com.github.rocketchat:rocketchatsdk:0.2.0'
 }
 ```
 
@@ -84,7 +84,6 @@ support is a button (required view). Clicking on button will fire intent to open
             }
         });
 ```
-<b> Note : </b> This library currently do not support configuration having any departments at server side. Make sure no department is created or available at server side LiveChat configuartion.
 
 <b>For more information refer sample code under 'app' directory. </b>
 
