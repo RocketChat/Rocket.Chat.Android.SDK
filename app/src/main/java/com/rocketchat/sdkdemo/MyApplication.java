@@ -1,4 +1,4 @@
-package com.example.rocketchat;
+package com.rocketchat.sdkdemo;
 
 import com.github.rocketchat.livechat.Application.LiveChatApplication;
 
@@ -12,7 +12,7 @@ public class MyApplication extends LiveChatApplication {
 
     @Override
     public void onCreate() {
-        setServerUrl(serverurl);
         super.onCreate();
     }
+
 }

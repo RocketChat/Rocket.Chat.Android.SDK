@@ -8,7 +8,15 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.rocketchat.MainActivity">
+    tools:context="com.rocketchat.sdkdemo.MainActivity">
+
+    <EditText
+        android:layout_above="@+id/support"
+        android:id="@+id/url"
+        android:hint="@string/domain_name"
+        android:layout_marginBottom="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <Button
         android:layout_width="wrap_content"
