@@ -19,6 +19,8 @@ This SDK is divided into two parts
 This SDK currently provides support to include <b> livechat client functionality </b> in any android app. </br>
 **Core SDK** coming soon.....
 
+<a href='https://play.google.com/store/apps/details?id=com.rocketchat.sdkdemo&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' width="200" src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'/></a>
+
 License
 -------
 MIT License
