@@ -91,7 +91,7 @@ support is a button (required view). Clicking on button will fire intent to open
         });
 ```
 
-<b>For more information refer sample code under 'app' directory. </b>
+<b>For more information refer sample code under 'example' directory. </b>
 
 
 
