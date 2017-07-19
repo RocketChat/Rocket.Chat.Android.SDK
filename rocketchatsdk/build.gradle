@@ -62,7 +62,7 @@ dependencies {
     })
     testCompile 'junit:junit:4.12'
     compile 'com.github.stfalcon:chatkit:0.2.1'
-    compile ('io.rocketchat:rocketchatjavasdk:0.4.4'){
+    compile ('io.rocketchat:rocketchatjavasdk:0.5.1'){
         exclude group :'org.json', module: 'json'
     }
 }
