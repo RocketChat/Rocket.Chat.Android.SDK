@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/RocketChatSDK.iml" filepath="$PROJECT_DIR$/RocketChatSDK.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/rocketchatsdk/rocketchatsdk.iml" filepath="$PROJECT_DIR$/rocketchatsdk/rocketchatsdk.iml" />
     </modules>
   </component>
