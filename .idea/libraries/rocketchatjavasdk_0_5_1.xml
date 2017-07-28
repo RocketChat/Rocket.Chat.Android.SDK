@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="rocketchatjavasdk-0.5.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.rocketchat/rocketchatjavasdk/0.5.1/7792b575f2cc06edd01c211550712b30737b52fd/rocketchatjavasdk-0.5.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.rocketchat/rocketchatjavasdk/0.5.1/4d429dc086ba9b31b036e74f44a751e6e8d943f2/rocketchatjavasdk-0.5.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

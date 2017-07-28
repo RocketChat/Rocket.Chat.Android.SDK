@@ -1,1 +1,1 @@
-include ':app', ':rocketchatsdk'
+include ':example', ':rocketchatsdk'

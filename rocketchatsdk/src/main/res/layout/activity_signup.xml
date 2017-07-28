@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ScrollView01"
+    android:fillViewport="true"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+<RelativeLayout
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_signup"
     android:layout_width="match_parent"
@@ -7,29 +12,78 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.github.rocketchat.livechat.SignupActivity">
 
-    <EditText
+    <android.support.v7.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:text="@string/default_message"
+        android:textSize="18dp"
+        android:layout_marginTop="20dp"
+        android:visibility="gone"
+        android:id="@+id/offline_message"
+        android:layout_height="wrap_content" />
+
+    <android.support.v7.widget.AppCompatEditText
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/offline_message"
         android:layout_width="match_parent"
         android:hint="@string/username"
+        android:textSize="18dp"
         android:id="@+id/userid"
         android:layout_centerHorizontal="true"
-        android:layout_height="50dp" />
-    <EditText
+        android:layout_height="wrap_content" />
+
+    <android.support.v7.widget.AppCompatEditText
         android:layout_width="match_parent"
         android:hint="@string/emailid"
         android:layout_below="@id/userid"
         android:layout_marginTop="20dp"
         android:id="@+id/email"
+        android:textSize="18dp"
+        android:inputType="textEmailAddress"
         android:layout_centerHorizontal="true"
-        android:layout_height="50dp" />
-    <Button
+        android:layout_height="wrap_content" />
+
+    <android.support.v7.widget.AppCompatSpinner
         android:layout_marginTop="20dp"
+        android:id="@+id/departments"
         android:layout_below="@id/email"
+        android:textSize="18dp"
+        android:spinnerMode="dialog"
+        android:layout_height="wrap_content"
+        android:prompt="@string/department_prompt"
+        style="@android:style/Widget.Holo.Light.Spinner"
+        android:visibility="gone"
+        android:layout_width="fill_parent" />
+
+    <android.support.v7.widget.AppCompatEditText
+        android:layout_width="match_parent"
+        android:hint="@string/type_message"
+        android:layout_below="@id/departments"
+        android:layout_marginTop="20dp"
+        android:id="@+id/message"
+        android:visibility="gone"
+        android:inputType="textLongMessage|textMultiLine"
+        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/message"
         android:layout_width="match_parent"
         android:text="@string/register"
         android:id="@+id/register"
         android:layout_height="wrap_content" />
 
+    <android.support.v7.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:id="@+id/success_message"
+        android:textSize="18dp"
+        android:gravity="center"
+        android:visibility="gone"
+        android:text="@string/successMessage"
+        android:layout_centerInParent="true"
+        android:layout_height="wrap_content" />
+
 </RelativeLayout>
+</ScrollView>

@@ -15,15 +15,15 @@ ext {
     siteUrl = 'https://github.com/RocketChat/Rocket.Chat.Android.SDK'
     gitUrl = 'https://github.com/RocketChat/Rocket.Chat.Android.SDK.git'
 
-    libraryVersion = '0.1.1'
+    libraryVersion = '0.2.0'
 
     developerId = 'sacOO7'
     developerName = 'Sachin Shinde'
     developerEmail = 'sachinshinde7676@gmail.com'
 
-    licenseName = 'The Apache Software License, Version 2.0'
-    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-    allLicenses = ["Apache-2.0"]
+    licenseName = 'The MIT Software License'
+    licenseUrl = 'https://github.com/RocketChat/Rocket.Chat.Android.SDK/blob/master/LICENSE'
+    allLicenses = ["MIT"]
 }
 
 android {
@@ -57,8 +57,12 @@ bintray {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    testCompile 'junit:junit:4.12'
     compile 'com.github.stfalcon:chatkit:0.2.1'
-    compile ('io.rocketchat:rocketchatjavasdk:0.3.2'){
+    compile ('io.rocketchat:rocketchatjavasdk:0.5.1'){
         exclude group :'org.json', module: 'json'
     }
 }
