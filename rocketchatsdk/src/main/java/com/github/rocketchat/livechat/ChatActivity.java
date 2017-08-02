@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import io.rocketchat.common.data.model.ErrorObject;
 import io.rocketchat.livechat.LiveChatAPI;
 import io.rocketchat.livechat.callback.AgentListener;
 import io.rocketchat.livechat.callback.AuthListener;
@@ -52,7 +53,8 @@ public class ChatActivity extends AppCompatActivity implements
         MessagesListAdapter.OnLoadMoreListener,
         MessageInput.InputListener,
         MessageInput.AttachmentsListener,
-        DateFormatter.Formatter, LoadHistoryListener, AuthListener.LoginListener, ConnectListener, AgentListener.AgentConnectListener, MessageListener, TypingListener, AgentListener.AgentDataListener {
+        MessageListener.MessageAckListener,
+        DateFormatter.Formatter, LoadHistoryListener, AuthListener.LoginListener, ConnectListener, AgentListener.AgentConnectListener, MessageListener.SubscriptionListener, TypingListener, AgentListener.AgentDataListener {
 
 
     public static int REQUEST_REGISTER=0;
@@ -122,7 +124,7 @@ public class ChatActivity extends AppCompatActivity implements
 
     @Override
     public boolean onSubmit(final CharSequence input) {
-        chatRoom.sendMessage(input.toString());
+        chatRoom.sendMessage(input.toString(),this);
         if (!isAgentConnected){
             dialog.show();
         }
@@ -225,9 +227,15 @@ public class ChatActivity extends AppCompatActivity implements
                     public void onClick(DialogInterface dialog, int which) {
                 // continue with delete
 
-                        ChatActivity.this.dialog.setMessage("Closing conversation ...");
-                        ChatActivity.this.dialog.show();
-                        chatRoom.closeConversation();
+                        if (isAgentConnected) {
+                            ChatActivity.this.dialog.setMessage("Closing conversation ...");
+                            ChatActivity.this.dialog.show();
+                            chatRoom.closeConversation();
+                        }else{
+                            editor.clear();
+                            editor.commit();
+                            finish();
+                        }
                     }
                 })
                 .setNegativeButton(android.R.string.no, null);
@@ -242,6 +250,10 @@ public class ChatActivity extends AppCompatActivity implements
             Intent intent=new Intent(this,SignupActivity.class);
             startActivityForResult(intent,REQUEST_REGISTER);
         }else {
+            String title=sharedPref.getString("title","");
+            if (!title.equals("")) {
+                getSupportActionBar().setTitle(title);
+            }
             liveChatAPI=((LiveChatApplication)getApplicationContext()).getLiveChatAPI();
             liveChatAPI.setReconnectionStrategy(null);
             chatRoom=liveChatAPI.new ChatRoom(roomInfo);
@@ -269,9 +281,12 @@ public class ChatActivity extends AppCompatActivity implements
             finish();
         }else {
             String roonInfo = data.getStringExtra("roomInfo");
+            String title=data.getStringExtra("title");
             editor.putString("roomInfo", roonInfo);
+            editor.putString("title",title);
             editor.commit();
 
+            getSupportActionBar().setTitle(title);
             liveChatAPI = ((LiveChatApplication) getApplicationContext()).getLiveChatAPI();
             liveChatAPI.setConnectListener(this);
             chatRoom = liveChatAPI.new ChatRoom(roonInfo);
@@ -289,6 +304,8 @@ public class ChatActivity extends AppCompatActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         getMenuInflater().inflate(R.menu.chat_actions_menu, menu);
+        menu.findItem(R.id.contact_via_mail).setVisible(false);
+//        menu.findItem(R.id.action_close_conversation).setVisible(false);
         onSelectionChanged(0);
         return true;
     }
@@ -424,30 +441,43 @@ public class ChatActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onLogin(GuestObject object) {
+    public void onLogin(GuestObject object,final ErrorObject error) {
         Log.i ("success","login is successful");
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 dialog.setMessage("Loading history ...");
-                AppUtils.showToast(ChatActivity.this,"Login successful",false);
+//                AppUtils.showToast(ChatActivity.this,"Login successful",false);
             }
         });
 
         chatRoom.getAgentData(this);
-        chatRoom.getChatHistory(20,lastTimestamp,null,this);
     }
 
     @Override
-    public void onAgentData(AgentObject agentObject) {
-        processAgent(agentObject);
+    public void onAgentData(AgentObject agentObject,final ErrorObject error) {
+        if (error!=null){
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
+                    dialog.setMessage("Contacting agent...");
+                    AppUtils.showToast(ChatActivity.this, R.string.no_agent_available , false);
+                }
+            });
+            chatRoom.subscribeLiveChatRoom(null, this);
+        }else {
+            processAgent(agentObject);
+            chatRoom.getChatHistory(20,lastTimestamp,null,this);
+        }
     }
 
     @Override
     public void onAgentConnect(final AgentObject agentObject) {
-        chatRoom.getChatHistory(1,lastTimestamp,null,this);
         processAgent(agentObject);
-
+        chatRoom.getChatHistory(1,lastTimestamp,null,this);
     }
 
     public void processAgent(final AgentObject agentObject){
@@ -455,6 +485,9 @@ public class ChatActivity extends AppCompatActivity implements
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                menu.findItem(R.id.contact_via_mail).setVisible(true);
+//                menu.findItem(R.id.action_close_conversation).setVisible(true);
+
                 getSupportActionBar().setTitle(agentObject.getUsername());
                 if (agentObject.getEmails().optJSONObject(0)!=null) {
                     agentEmail=agentObject.getEmails().optJSONObject(0).optString("address");
@@ -463,7 +496,7 @@ public class ChatActivity extends AppCompatActivity implements
                 if (dialog.isShowing()){
                     dialog.dismiss();
                 }
-                AppUtils.showToast(ChatActivity.this,"Agent connected",true);
+//                AppUtils.showToast(ChatActivity.this,"Agent connected",true);
 
             }
         });
@@ -474,23 +507,24 @@ public class ChatActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onLoadHistory(ArrayList<MessageObject> list, int unreadNotLoaded) {
-        lastTimestamp =list.get(list.size()-1).getMsgTimestamp();
-        final ArrayList <Message> messages=new ArrayList<>();
-        for (MessageObject object : list) {
-            if (!object.getMessagetype().equalsIgnoreCase("command")) {
-                messages.add(new Message(object.getMessageId(), new User(object.getSender().getUserId(), object.getSender().getUserName(), null, true), object.getMessage(),object.getMsgTimestamp()));
-            }
-        }
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (dialog.isShowing()){
-                    dialog.dismiss();
+    public void onLoadHistory(ArrayList<MessageObject> list, int unreadNotLoaded,final ErrorObject error) {
+
+            lastTimestamp = list.get(list.size() - 1).getMsgTimestamp();
+            final ArrayList<Message> messages = new ArrayList<>();
+            for (MessageObject object : list) {
+                if (!object.getMessagetype().equalsIgnoreCase("command")) {
+                    messages.add(new Message(object.getMessageId(), new User(object.getSender().getUserId(), object.getSender().getUserName(), null, true), object.getMessage(), object.getMsgTimestamp()));
                 }
-                messagesAdapter.addToEnd(messages,false);
             }
-        });
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
+                    messagesAdapter.addToEnd(messages, false);
+                }
+            });
     }
 
 
@@ -569,4 +603,26 @@ public class ChatActivity extends AppCompatActivity implements
     }
 
 
+    @Override
+    public void onMessageAck(MessageObject object, final ErrorObject error) {
+        Log.i ("success","got error here");
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (dialog.isShowing()){
+                    dialog.dismiss();
+                }
+                if (error!=null){
+                    AppUtils.showToast(ChatActivity.this, error.getMessage() , false);
+                }
+            }
+        });
+    }
 }
+
+
+//    create new branch local "feature/offline_form"
+//    git push -u origin feature/offline_form
+//    create pull request with respect to original develop
+//    merge request with no conflicts
+//    sync original develop into forked develop
