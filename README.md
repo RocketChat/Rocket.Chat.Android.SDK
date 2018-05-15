@@ -1,7 +1,7 @@
 # DEPRECATED
 
 **This is no longer supported, please consider using the [Rocket.Chat.Kotlin.SDK](https://github.com/RocketChat/Rocket.Chat.Kotlin.SDK) instead**.
-
+-------
 <!--- Here are some features that SDK should provide
 - Authentication in integration with native app username and password
 - Sending and receiving messages, audio, video , document, images
